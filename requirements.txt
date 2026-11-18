@@ -1,0 +1,7 @@
+# Faixas testadas (nov/2026: numpy 2.3, pandas 2.3, openpyxl 3.1, requests 2.32, xlwings 0.33).
+# Teto na próxima versão maior: pandas 3 / xlwings 0.34+ já existem e não foram testados com o projeto.
+numpy>=2.0,<3
+pandas>=2.2,<3
+openpyxl>=3.1,<4
+requests>=2.31,<3
+xlwings>=0.33,<0.34

@@ -1,0 +1,19 @@
+# Planilha de trabalho (criada a partir de modelo/ na primeira execução)
+/Mesa_Curvas_B3.xlsm
+
+# Dados baixados a cada pregão e log da última execução
+data/raw/
+data/ultima_execucao.log
+
+# Planilhas e documentos locais na raiz do projeto
+/*.xlsx
+/*.xlsm
+*.pdf
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Excel temporário
+~$*
