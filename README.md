@@ -11,6 +11,10 @@ a vértice com as curvas oficiais que a B3 publica no mesmo dia.**
 
 ![Painel](imagens/painel.png)
 
+> **Só quer ver o resultado?** Baixe a [planilha de amostra](amostra/Book_de_Curvas_amostra_2026-11-17.xlsx):
+> é a saída do projeto para o pregão de 17/11/2026, em `.xlsx` sem macros — os botões não funcionam nela, mas
+> as calculadoras de data livre sim. Para os dados do dia, veja [Como usar](#como-usar).
+
 ## O que tem na planilha
 
 | Aba | Conteúdo |
@@ -100,7 +104,8 @@ vendido em PU); moedas, *Compra/Venda*. Erros de digitação são marcados na pr
 
 ## Como usar
 
-**Requisitos:** Windows com Microsoft Excel instalado (a planilha é escrita via xlwings) e Python 3.10+.
+**Requisitos:** Windows com Microsoft Excel instalado (a planilha é escrita via xlwings) e Python 3.10+
+(testado em Python 3.13 e 3.14, com Excel do Microsoft 365).
 
 ```bash
 git clone https://github.com/murilomendesz/book-de-curvas-marcacao-a-mercado.git
