@@ -11,7 +11,7 @@ a vértice com as curvas oficiais que a B3 publica no mesmo dia.**
 
 ![Painel](imagens/painel.png)
 
-> **Só quer ver o resultado?** Baixe a [planilha de amostra](amostra/Book_de_Curvas_amostra_2026-11-17.xlsx):
+> **Só quer ver o resultado?** Baixe a [planilha de amostra](Amostra_Projeto.xlsx):
 > é a saída do projeto para o pregão de 17/11/2026, em `.xlsx` sem macros — os botões não funcionam nela, mas
 > as calculadoras de data livre sim. Para os dados do dia, veja [Como usar](#como-usar).
 
