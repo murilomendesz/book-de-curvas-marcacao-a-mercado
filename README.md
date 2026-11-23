@@ -62,18 +62,27 @@ curvas de juros; DV01 da PRE, DV01 do cupom e delta câmbio nas de moeda.
 ## Validação
 
 A tabela do Painel compara, em toda execução, cada curva montada com a curva oficial que a B3 publica no dia
-(arquivo de Taxas Referenciais). Resultado em três pregões:
+(arquivo de Taxas Referenciais). Resultado em quatro pregões:
 
-| Curva | 21/07/2026 | 16/11/2026 | 17/11/2026 | Tolerância |
-|---|---|---|---|---|
-| PRE, cupom sujo, cupom limpo (DOC e DCL) | 272/272 | 278/278 | 276/276 | meia unidade da última casa publicada |
-| Dólar forward, cupom de euro, euro forward | 272/272 | 278/278 | 276/276 | idem |
-| Cupom IPCA | 272/272 | 278/278 | 276/276 | 0,01 p.p. |
-| Cupom sujo de euro (≥ 15 DC, não documentado no manual) | 264/264 | 271/271 | 269/269 | 0,02 p.p. |
+| Curva | 21/07/2026 | 16/11/2026 | 17/11/2026 | 19/11/2026 | Tolerância |
+|---|---|---|---|---|---|
+| PRE, cupom sujo, cupom limpo (DOC e DCL) | 272/272 | 278/278 | 276/276 | 277/277 | meia unidade da última casa publicada |
+| Dólar forward, cupom de euro, euro forward | 272/272 | 278/278 | 276/276 | 277/277 | idem |
+| Cupom IPCA | 272/272 | 278/278 | 276/276 | 277/277 | 0,01 p.p. |
+| Cupom sujo de euro (≥ 15 DC, não documentado no manual) | 264/264 | 271/271 | 269/269 | 271/271 | 0,02 p.p. |
 
 Além disso, o **dólar teórico** (Ptax × fator PRE ÷ fator cupom) reproduz o ajuste de todos os vencimentos
 de DOL com diferença máxima de 0,001 ponto, e o **forward de cupom** reproduz as taxas de ajuste do FRC
 (diferença abaixo de 0,001 p.p., o arredondamento do próprio DDI).
+
+O **P&L do dia** também é conferido com a liquidação oficial: o arquivo de ajustes traz o valor em R$ que a B3
+credita ou debita por contrato (`AjusteContrato`). Em DI1, DDI, DOL e EUR o P&L calculado é igual a ele em todos
+os contratos dos quatro pregões (diferença de R$ 0,00); no DAP, até R$ 0,01 por contrato quando há o pregão
+anterior para medir o IPCA *pro rata*.
+
+O **euro forward** reproduz a curva EUR da B3, mas fica acima dos ajustes dos futuros de euro (até ~0,07%):
+a B3 monta essa curva a partir do cupom cambial, do spread EUR × USD e do euro cupom limpo, e não dos futuros
+EUR, que são pouco negociados. Os ajustes EUR aparecem na planilha só como referência.
 
 ### O que foi preciso para bater com a B3
 1. **O manual diz "trunca", a B3 arredonda**: dólar e euro forward só batem arredondando na 7ª casa.
@@ -91,6 +100,9 @@ de DOL com diferença máxima de 0,001 ponto, e o **forward de cupom** reproduz 
    mas a especificação vigente usa o fixing antes da 3ª quarta-feira (confirmado pelos preços); a curva DCL
    foi renomeada para DCP; o arquivo diário mudou de formato sem aviso — o leitor valida o formato e
    recalcula vencimentos e prazos pelo calendário.
+8. **IPCA *pro rata* do DAP conta a partir do dia útil do aniversário**: a especificação diz "dias úteis
+   decorridos a partir do dia 15"; quando o dia 15 cai em fim de semana, o ajuste publicado pela B3 só bate
+   contando a partir do dia útil seguinte (15/11/2026 foi um domingo).
 
 ![Cupom cambial e dólar forward](imagens/cupom_cambial.png)
 
@@ -154,7 +166,10 @@ data/calendario/          feriados nacionais ANBIMA
 - FRC só como operação do dia, a partir do vencimento seguinte ao DDI base.
 - Três insumos vêm do arquivo de taxas da B3 por não serem reproduzíveis com dados públicos: o spread
   EUR × USD (SDE), o 1º vértice do cupom de IPCA (a B3 usa a projeção de IPCA) e o número-índice do IPCA.
-- Cupom de IPCA: até 0,01 p.p. de diferença nos vértices anteriores ao 1º DAP.
+- Cupom de IPCA: diferença de 0,01 p.p. (uma unidade da 2ª casa) em 2 a 4 vértices por pregão. A maioria são
+  empates de arredondamento: o vértice coincide com um vencimento DAP cuja taxa termina em 5 na 3ª casa, e a B3
+  arredonda alguns desses casos para cima e outros para baixo. Os demais ficam antes do 1º DAP, onde a B3 usa a
+  projeção mensal de IPCA (não disponível).
 - Cupom sujo de euro: não documentado no manual; exibido só a partir de 15 dias corridos.
 - Próximos passos: carry e rolldown, Copom implícito na curva PRE, títulos públicos e viés de convexidade do
   DI1 futuro.

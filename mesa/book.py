@@ -118,8 +118,11 @@ def _dia15_ref(t: dt.date) -> dt.date:
 
 
 def _du_apos(a: dt.date, b: dt.date) -> int:
-    """Dias úteis em (a, b] — a pode não ser dia útil (o dia 15 cai em fim de semana)."""
-    return cal.du(a + dt.timedelta(days=1), b + dt.timedelta(days=1))
+    """Dias úteis de um aniversário do IPCA (dia 15) até `b`, contados a partir do DIA ÚTIL do aniversário:
+    se o dia 15 não for dia útil, o aniversário passa para o dia útil seguinte (dud = 0 nele).
+    O OC 034/2025 só diz "decorridos a partir do 15º dia"; a contagem foi confirmada pelo AjusteContrato
+    do DAP em 17 e 19/11/2026 (15/11 = domingo → dud = 1 e 3, não 2 e 4)."""
+    return cal.du(cal.ajusta_dia_util(a), cal.ajusta_dia_util(b))
 
 
 def _fator_abertura(dados: DadosD0, familia: str) -> float:
@@ -140,7 +143,8 @@ def ipca_pro_rata(dados: DadosD0) -> tuple[float, str]:
     - g = (1 + Proj)^(1/du_m), o crescimento do PRT por dia útil, está embutido no PA de abertura:
       FC_DI1 = fator DI e FC_DAP = fator DI ÷ (PRT_t/PRT_{t−k}) ⇒ g^k = FC_DI1 / FC_DAP
       (exige os ajustes do pregão anterior — o arquivo "D1" do site).
-    - dud_t = dias úteis do dia 15 de referência (exclusive) até t (inclusive).
+    - dud_t = dias úteis do aniversário (dia 15, ou o dia útil seguinte se ele não for útil), exclusive,
+      até t, inclusive (ver `_du_apos`).
     Sem o pregão anterior (ou se ele for de outro período mensal), usa IPCA_{t-1} — aproximação que
     erra ~0 no dia 15 e até ~0,4% (uma projeção mensal) antes do dia 15 seguinte.
     """
@@ -155,7 +159,8 @@ def ipca_pro_rata(dados: DadosD0) -> tuple[float, str]:
         g = (_fator_abertura(dados, "DI1") / _fator_abertura(dados, "DAP")) ** (1 / k) if 1 <= k <= 3 else np.nan
         if np.isfinite(g) and 0.999 < g < 1.002:
             prt = indice * g ** dud
-            du_m = _du_apos(ref15, dt.date(ref15.year + ref15.month // 12, ref15.month % 12 + 1, 15))
+            prox15 = dt.date(ref15.year + ref15.month // 12, ref15.month % 12 + 1, 15)
+            du_m = cal.du(ref15 + dt.timedelta(days=1), prox15 + dt.timedelta(days=1))   # (15, 15 seguinte] (spec)
             proj = (g ** du_m - 1) * 100
             return prt, (f"PRT = {_br(prt, 2)} = IPCA do mês {_br(indice, 2)} × {_br(g, 7)}^{dud} DU "
                          f"(projeção do IPCA implícita no PA de abertura do DAP: {_br(proj, 2)}% no mês)")

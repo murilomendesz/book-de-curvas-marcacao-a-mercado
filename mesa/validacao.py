@@ -27,7 +27,9 @@ def contra_b3(dados: DadosD0, curvas: Curvas) -> pd.DataFrame:
         ok = nosso[c].notna().values & b3[c].notna().values
         dif = np.abs(nosso[c].values[ok] - b3[c].values[ok])
         linhas.append({"curva": NOMES[c], "vertices": int(ok.sum()),
-                       "dentro": int((dif <= tol + 1e-12).sum()), "max_dif": float(dif.max()), "tolerancia": tol})
+                       "dentro": int((dif <= tol + 1e-12).sum()),
+                       "max_dif": float(dif.max()) if dif.size else np.nan,   # sem vértice comparável: não derruba o Painel
+                       "tolerancia": tol})
     return pd.DataFrame(linhas)
 
 

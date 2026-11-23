@@ -446,9 +446,10 @@ def escrever(wb: xw.Book, dados: DadosD0, curvas: Curvas, executado_em: dt.datet
                    ["dd/mm/yyyy", "0", "0", "0.0000", "0.0000", "0.0000", "0.0000000", "0.00", None], vt["EUR"], "0.0000",
                    calc_eur, [graf_cupom_eur, graf_euro],
                    notas=["Cupom sujo EUR: curva não documentada no Manual B3; exibida a partir de 15 DC (antes, a B3 usa um spot de euro não disponível).",
-                          "Futuros EUR: ilíquidos; ajustes exibidos só como checagem da paridade."])
+                          "Futuros EUR: ilíquidos; ajustes exibidos só como referência. A curva EUR da B3 sai de DDI, SDE e "
+                          "TXEURO (não dos futuros) e costuma ficar acima dos ajustes EUR (até ~0,07%)."])
     base = 9 + len(vt["EUR"]) + 3
-    _secao(sh, f"{col(COL_VT)}{base - 1}", "AJUSTES EUR (R$/€ 1.000) — checagem")
+    _secao(sh, f"{col(COL_VT)}{base - 1}", "AJUSTES EUR (R$/€ 1.000) — referência")
     _tabela(sh, base, COL_VT, ["Ticker", "Vencimento", "DU", "DC", "Ajuste", "Contr. abertos"],
             eur_aj.assign(pa=eur_aj.pa / 1000), [None, "dd/mm/yyyy", "0", "0", "0.0000", "#,##0"])
 
@@ -532,7 +533,7 @@ def _painel(wb, dados, curvas, g, k, executado_em):
         ("Inflação implícita", _rg(ipca, 0, p_ipca, fim), _rg(ipca, 5, p_ipca, fim), E.VERDE, "tracejado")])
     v = validacao.contra_b3(dados, curvas)
     _secao(sh, "M12", "VALIDAÇÃO × CURVAS OFICIAIS B3 (vértice a vértice)")
-    passou = (v.dentro == v.vertices).values
+    passou = ((v.dentro == v.vertices) & (v.vertices > 0)).values     # 0 vértices comparáveis = ✘, não ✔
     v["ok"] = np.where(passou, "✔", "✘")
     _tabela(sh, 13, 13, ["Curva", "Vértices", "Dentro da tolerância", "Maior diferença", "Tolerância", ""],
             v[["curva", "vertices", "dentro", "max_dif", "tolerancia", "ok"]], [None, "0", "0", "0.0000000", "0.0000000", None])
