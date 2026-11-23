@@ -144,7 +144,10 @@ def ler_pasta(pasta: Path) -> DadosD0:
             f"taxas {data_tx:%d/%m/%Y}, indicadores {data_ind:%d/%m/%Y}.")
     aj_d1, data_d1 = None, None
     if (pasta / ARQ_AJUSTES_D1).exists():
-        data_d1, aj_d1 = ler_ajustes(pasta / ARQ_AJUSTES_D1)
-        if data_d1 >= data_aj:          # D1 tem de ser um pregão anterior; senão é ignorado
+        try:                            # D1 é opcional: arquivo ilegível/formato inesperado → ignora (o DAP usa a
+            data_d1, aj_d1 = ler_ajustes(pasta / ARQ_AJUSTES_D1)   # aproximação e o Book avisa "sem o pregão anterior")
+        except Exception:
+            aj_d1, data_d1 = None, None
+        if data_d1 is not None and data_d1 >= data_aj:   # D1 tem de ser um pregão anterior; senão é ignorado
             aj_d1, data_d1 = None, None
     return DadosD0(data_aj, ajustes, indicadores, datas_ind, curvas, aj_d1, data_d1)
